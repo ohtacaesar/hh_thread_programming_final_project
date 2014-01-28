@@ -1,27 +1,27 @@
-COMPILER  	= gcc-4.8
-CFLAGS    	= -Wextra -g -MMD -MP
-LDFLAGS   	=
-LIBS      	=
-INCLUDE  	= -I./include
-TARGET  	= ./bin/final_project
-TARGET_DIR 	= ./bin
-SRCDIR    	= ./src
-OBJDIR    	= ./obj
+COMPILER    = gcc-4.8
+CFLAGS      = -Wextra -g -MMD -MP
+LDFLAGS     =
+LIBS        =
+INCLUDE     = -I./include
+TARGET      = ./bin/final_project
+TARGET_DIR  = ./bin
+SRCDIR      = ./src
+OBJDIR      = ./obj
 ifeq "$(strip $(OBJDIR))" ""
-  OBJDIR 	= .
+  OBJDIR    = .
 endif
 
-TEST_SRCDIR	= ./test
+TEST_SRCDIR = ./test
 TEST_OBJDIR = ./test_obj
 TEST_TARGET = ./bin/test
 
-SOURCES      = $(wildcard $(SRCDIR)/*.c)
-OBJECTS      = $(subst $(SRCDIR), $(OBJDIR), $(SOURCES:.c=.o))
-	DEPENDS  = $(OBJECTS:.o=.d)
+SOURCES     = $(wildcard $(SRCDIR)/*.c)
+OBJECTS     = $(subst $(SRCDIR), $(OBJDIR), $(SOURCES:.c=.o))
+	DEPENDS = $(OBJECTS:.o=.d)
 
 TEST_SOURCES = $(wildcard $(TEST_SRCDIR)/*.c)
 TEST_OBJECTS = $(subst $(TEST_SRCDIR), $(TEST_OBJDIR), $(TEST_SOURCES:.c=.o))
-	TEST_DEPENDS  = $(TEST_OBJECTS:.o=.d)
+	TEST_DEPENDS = $(TEST_OBJECTS:.o=.d)
 
 default: $(TARGET) $(TEST_TARGET)
 
