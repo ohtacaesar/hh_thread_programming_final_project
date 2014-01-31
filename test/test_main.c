@@ -151,16 +151,18 @@ int main(int argc, char** argv) {
 
     // Get path to test/test_dataa.csv
     // C mendoi
-    char *file_name = "/test_data.csv";
-    int file_path_size = strlen(__FILE__) + strlen(file_name);
+    char *file_path_from_bin_dir = "../test/test_data.csv";
+    int file_path_size = strlen(argv[0]) + strlen(file_path_from_bin_dir);
 
     test_data_path = (char *) malloc(sizeof(char) * file_path_size);
-    strncpy(test_data_path, __FILE__, strlen(__FILE__));
+    strncpy(test_data_path, argv[0], strlen(argv[0]));
 
     char *pos = strrchr(test_data_path, '/');
+    *pos++;
     *pos = '\0';
 
-    strncat(test_data_path, file_name, file_path_size);
+    strncat(test_data_path, file_path_from_bin_dir, file_path_size);
+    // printf("%s\n", argv[0]);
     // printf("Test data file is %s\n", test_data_path);
 
     // Execute Tests
