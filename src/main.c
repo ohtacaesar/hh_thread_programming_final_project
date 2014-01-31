@@ -13,8 +13,12 @@ int main(int argc, char** argv) {
     CsvReader_open(csv_reader, argv[1]);
 
     struct CsvColumn *csv_column;
+    struct Tag *tag;
     while((csv_column = CsvReader_gets(csv_reader)) != NULL) {
-        printf("%s\n", csv_column->value);
+        tag = Tag__create_from_CsvColumn(csv_column);
+        printf("%s\n", tag->name);
+
+        Tag_delete(tag);
     }
 
     CsvReader_delete(csv_reader);

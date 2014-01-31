@@ -1,5 +1,5 @@
-#ifndef TAG_AGGREGATED_H
-#define TAG_AGGREGATED_H
+#ifndef AGGREGATED_TAG_H
+#define AGGREGATED_TAG_H
 
 struct AggregatedTag {
     char *name;
