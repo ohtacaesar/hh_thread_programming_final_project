@@ -15,10 +15,6 @@ int main(int argc, char** argv) {
     struct CsvColumn *csv_column;
     while((csv_column = CsvReader_gets(csv_reader)) != NULL) {
         printf("%s\n", csv_column->value);
-
-        // 現在メモリりーくちゅう!!
-        // 1. CsvReaderにLastCsvColumnもたせて、getsが呼び出されるたびにdeleteするのがよし？
-        // 2. それかここでCsvColumn_deleteをよばせる
     }
 
     CsvReader_delete(csv_reader);
