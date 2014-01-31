@@ -3,18 +3,20 @@
 #include <string.h>
 #include "csv_reader.h"
 
-#define FGETS_BUF_SIZE 256
+#define FGETS_BUF_SIZE  256
 #define COLUMN_BUF_SIZE 64
 
 struct CsvReader {
     FILE *file_pointer;
     char *file_name;
+    struct CsvColumn *last_csv_column;
 };
 
 struct CsvReader* CsvReader__create() {
     struct CsvReader *csv_reader = (struct CsvReader*) malloc(sizeof(struct CsvReader));
-    csv_reader->file_pointer = NULL;
-    csv_reader->file_name    = NULL;
+    csv_reader->file_pointer    = NULL;
+    csv_reader->file_name       = NULL;
+    csv_reader->last_csv_column = NULL;
 
     return csv_reader;
 }
@@ -28,6 +30,11 @@ int CsvReader_delete(struct CsvReader *csv_reader) {
     if(csv_reader->file_name != NULL) {
         free(csv_reader->file_name);
         csv_reader->file_name = NULL;
+    }
+
+    if(csv_reader->last_csv_column != NULL) {
+        CsvColumn_delete(csv_reader->last_csv_column);
+        csv_reader->last_csv_column = NULL;
     }
 
     free(csv_reader);
@@ -56,6 +63,13 @@ struct CsvColumn* CsvReader_gets(struct CsvReader *csv_reader) {
     }
 
     struct CsvColumn *csv_column = split_line_to_column_list(line);
+
+    if(csv_reader->last_csv_column != NULL) {
+        CsvColumn_delete(csv_reader->last_csv_column);
+        csv_reader->last_csv_column = NULL;
+    }
+    
+    csv_reader->last_csv_column = csv_column;
 
     return csv_column;
 }

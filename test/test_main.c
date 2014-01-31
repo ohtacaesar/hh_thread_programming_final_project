@@ -55,9 +55,16 @@ static char *test_CsvReader_open() {
 }
 
 static char *test_split_line_to_column_list() {
+
     char *line = "\"３部OVA_MAD\",\"19602\",\"357\",\"118\"";
 
-    struct CsvColumn *csv_column = split_line_to_column_list(line);
+    // TODO: なぜか printf("a\n"); が無いとsegmentation faultする、要デバッグ
+    printf("a\n");
+    struct CsvColumn *head_csv_column = split_line_to_column_list(line);
+    // printf("b\n");
+    struct CsvColumn *csv_column      = head_csv_column;
+    // printf("c\n");
+
     mu_assert("ERROR, csv_column->value != \"３部OVA_MAD\"", strcmp(csv_column->value, "３部OVA_MAD") == 0);
 
     csv_column = csv_column->next;
@@ -69,7 +76,9 @@ static char *test_split_line_to_column_list() {
     csv_column = csv_column->next;
     mu_assert("ERROR, csv_column->value != \"118\"", strcmp(csv_column->value, "118") == 0);
 
-    // mu_assert("ERROR, csv_column->next != NULL", (csv_column->next == NULL));
+    mu_assert("ERROR, csv_column->next != NULL", csv_column->next == NULL);
+
+    CsvColumn_delete(head_csv_column);
 
     return 0;
 }
@@ -83,6 +92,7 @@ static char *test_CsvReader_gets() {
     struct CsvColumn *csv_column = CsvReader_gets(csv_reader);
     mu_assert("ERROR, csv_column != \"k-pop\"", strcmp(csv_column->value, "k-pop") == 0);
 
+    // csv_readerの開放によって、csv_columnが開放されている事も確認したい
     CsvReader_delete(csv_reader);
 
     return 0;
