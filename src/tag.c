@@ -5,8 +5,9 @@
 struct Tag* Tag__create(char *name, int view_count, int comment_count, int mylist_count) {
     struct Tag *tag = (struct Tag*) malloc(sizeof(struct Tag));
 
-    tag->name = (char*) malloc(sizeof(char) * strlen(name));
-    strncpy(tag->name, name, strlen(name));
+    int name_size = strlen(name) + 1;
+    tag->name = (char*) malloc(sizeof(char) * name_size);
+    strncpy(tag->name, name, name_size);
     tag->view_count    = view_count;
     tag->comment_count = comment_count;
     tag->mylist_count  = mylist_count;
