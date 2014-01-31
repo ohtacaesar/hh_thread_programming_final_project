@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
     // Get path to test/test_dataa.csv
     // C mendoi
     char *file_path_from_bin_dir = "../test/test_data.csv";
-    int file_path_size = strlen(argv[0]) + strlen(file_path_from_bin_dir);
+    int file_path_size = strlen(argv[0]) + strlen(file_path_from_bin_dir) + 1;
 
     test_data_path = (char *) malloc(sizeof(char) * file_path_size);
     strncpy(test_data_path, argv[0], strlen(argv[0]));
