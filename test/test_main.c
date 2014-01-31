@@ -37,6 +37,29 @@ static char *test_Tag__create_and_delete() {
     return 0;
 }
 
+static char *test_Tag__create_from_CsvColumn() {
+    struct CsvColumn *csv_column = split_line_to_column_list("\"３部OVA_MAD\",\"19602\",\"357\",\"118\"");
+    struct Tag *tag = Tag__create_from_CsvColumn(csv_column);
+
+    mu_assert("ERROR, tag->name != \"３部OVA_MAD\"", strcmp(tag->name, "３部OVA_MAD") == 0);
+    mu_assert("ERROR, tag->view_count != 19602",     tag->view_count    == 19602);
+    mu_assert("ERROR, tag->comment_count != 357",    tag->comment_count == 357);
+    mu_assert("ERROR, tag->mylist_count != 118",     tag->mylist_count  == 118);
+
+    CsvColumn_delete(csv_column);
+    Tag_delete(tag);
+
+    // return NULL if csv_column is wrong
+    csv_column = CsvColumn__create("test");
+    tag = Tag__create_from_CsvColumn(csv_column);
+    mu_assert("ERROR, tag != NULL", tag == NULL);
+
+    CsvColumn_delete(csv_column);
+    Tag_delete(tag);
+
+    return 0;
+}
+
 static char *test_CsvReader__create_and_delete() {
     struct CsvReader *csv_reader = CsvReader__create();
     CsvReader_delete(csv_reader);
@@ -142,6 +165,7 @@ static char *test_CsvColumn_create_next() {
 static char *all_tests() {
     // Tag
     mu_run_test(test_Tag__create_and_delete);
+    mu_run_test(test_Tag__create_from_CsvColumn);
 
     // CsvReader
     mu_run_test(test_CsvReader__create_and_delete);
