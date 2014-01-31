@@ -5,13 +5,14 @@
 
 #include "../src/tag.h"
 #include "../src/csv_reader.h"
+#include "../src/files.h"
 
-int   tests_run = 0;
-char* test_data_path;
-char* wrong_test_data_path; 
+int  tests_run = 0;
+char *bin_dir;
+char *test_data_path;
+char *dir_for_test_path;
 
-
-static char *test_Tag__create_and_delete() {
+static char *test_Tag__create_and_Tag_delete() {
     struct Tag *tag = Tag__create("test_tag", 1, 2, 3);
 
     mu_assert("ERROR, tag->name != \"test_tag\"", strcmp(tag->name, "test_tag") == 0);
@@ -60,7 +61,7 @@ static char *test_Tag__create_from_CsvColumn() {
     return 0;
 }
 
-static char *test_CsvReader__create_and_delete() {
+static char *test_CsvReader__create_and_CsvReader_delete() {
     struct CsvReader *csv_reader = CsvReader__create();
     CsvReader_delete(csv_reader);
     
@@ -162,13 +163,27 @@ static char *test_CsvColumn_create_next() {
     return 0;
 }
 
+static char *test_Files__create_and_Files_delete() {
+    struct Files *files = Files__create(dir_for_test_path);
+    int i;
+    for(i = 0; i < files->size; i++) {
+        files->file_paths[i];
+    }
+
+    mu_assert("ERROR, files->size != 3", files->size == 3);
+
+    Files_delete(files);
+
+    return 0;
+}
+
 static char *all_tests() {
     // Tag
-    mu_run_test(test_Tag__create_and_delete);
+    mu_run_test(test_Tag__create_and_Tag_delete);
     mu_run_test(test_Tag__create_from_CsvColumn);
 
     // CsvReader
-    mu_run_test(test_CsvReader__create_and_delete);
+    mu_run_test(test_CsvReader__create_and_CsvReader_delete);
     mu_run_test(test_CsvReader_open);
     mu_run_test(test_split_line_to_column_list);
     mu_run_test(test_CsvReader_gets);
@@ -178,26 +193,38 @@ static char *all_tests() {
     mu_run_test(test_CsvColumn_delete);
     mu_run_test(test_CsvColumn_create_next);
 
+    // Files
+    mu_run_test(test_Files__create_and_Files_delete);
+
     return 0;
 }
 
-int main(int argc, char** argv) {
+char* create_relative_path_from_bin(char *target_path) {
+    int relative_path_size = strlen(bin_dir) + strlen(target_path) + 1;
 
+    char *relative_path = (char *) malloc(sizeof(char) * relative_path_size);
+    strncpy(relative_path, bin_dir,     strlen(bin_dir));
+    strncat(relative_path, target_path, strlen(target_path));
+
+    return relative_path;
+}
+
+int main(int argc, char** argv) {
+    bin_dir = (char *) malloc(sizeof(char) * (strlen(argv[0]) + 1));
+    strncpy(bin_dir, argv[0], strlen(argv[0]) + 1);
+    char *pos = strrchr(bin_dir, '/');
+    pos++;
+    *pos = '\0';
+    // printf("%s\n", bin_dir);
+    // bin dir 完成
+    
     // Get path to test/test_dataa.csv
     // C mendoi
-    char *file_path_from_bin_dir = "../test/test_data.csv";
-    int file_path_size = strlen(argv[0]) + strlen(file_path_from_bin_dir) + 1;
+    test_data_path = create_relative_path_from_bin("../test/test_data.csv");
+    // printf("%s\n", test_data_path);
 
-    test_data_path = (char *) malloc(sizeof(char) * file_path_size);
-    strncpy(test_data_path, argv[0], strlen(argv[0]));
-
-    char *pos = strrchr(test_data_path, '/');
-    *pos++;
-    *pos = '\0';
-
-    strncat(test_data_path, file_path_from_bin_dir, file_path_size);
-    // printf("%s\n", argv[0]);
-    // printf("Test data file is %s\n", test_data_path);
+    dir_for_test_path = create_relative_path_from_bin("../test/dir_for_test");
+    // printf("%s\n", dir_for_test_path);
 
     // Execute Tests
     char *result = all_tests();
@@ -209,6 +236,9 @@ int main(int argc, char** argv) {
     }
 
     printf("Tests run: %d\n", tests_run);
+
+    free(test_data_path);
+    free(dir_for_test_path);
 
     return result != 0;
 }
