@@ -49,8 +49,9 @@ int CsvReader_open(struct CsvReader *csv_reader, char *file_name) {
         return -1;
     }
 
-    csv_reader->file_name = (char *) malloc(sizeof(char) * strlen(file_name));
-    strcpy(csv_reader->file_name, file_name);
+    int file_name_size = strlen(file_name) + 1;
+    csv_reader->file_name = (char *) malloc(sizeof(char) * file_name_size);
+    strncpy(csv_reader->file_name, file_name, file_name_size);
 
     return 0;
 }

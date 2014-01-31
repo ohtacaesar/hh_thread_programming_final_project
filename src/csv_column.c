@@ -6,8 +6,9 @@
 struct CsvColumn* CsvColumn__create(char *value) {
     struct CsvColumn *csv_column = (struct CsvColumn*) malloc(sizeof(struct CsvColumn));
 
-    csv_column->value = (char *) malloc(sizeof(char) * strlen(value));
-    strncpy(csv_column->value, value, strlen(value));
+    int value_size = strlen(value) + 1;
+    csv_column->value = (char *) malloc(sizeof(char) * value_size);
+    strncpy(csv_column->value, value, value_size);
     csv_column->next = NULL;
 
     return csv_column;
