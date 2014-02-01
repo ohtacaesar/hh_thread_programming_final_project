@@ -76,7 +76,7 @@ struct CsvColumn* CsvReader_gets(struct CsvReader *csv_reader) {
 }
 
 struct CsvColumn* split_line_to_column_list(char *line) {
-    struct CsvColumn *csv_column, *current_csv_column = NULL;
+    struct CsvColumn *csv_column = NULL, *current_csv_column = NULL;
 
     // CSVのカラムのダブルクオートの中にいるか外にいるか
     int in_double_quote = 0;
