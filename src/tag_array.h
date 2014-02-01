@@ -13,9 +13,13 @@ struct TagArray {
 // クラス的メソッド
 struct TagArray* TagArray__create();
 
+struct TagArray* TagArray__create_with_capacity(int capacity);
+
+struct TagArray* TagArray__create_from_csv(char *file_path);
+
 // インスタンス的メソッド
 int TagArray_delete(struct TagArray *tag_array);
 
-int TagArray_add(struct Tag *tag);
+int TagArray_add(struct TagArray *tag_array, struct Tag *tag);
 
 #endif
