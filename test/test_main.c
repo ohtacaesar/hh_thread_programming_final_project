@@ -4,6 +4,7 @@
 #include "minunit.h"
 
 #include "../src/tag.h"
+#include "../src/tag_list.h"
 #include "../src/csv_reader.h"
 #include "../src/files.h"
 
@@ -12,6 +13,9 @@ char *bin_dir;
 char *test_data_path;
 char *dir_for_test_path;
 
+/**
+ * Tag
+ */
 static char *test_Tag__create_and_Tag_delete() {
     struct Tag *tag = Tag__create("test_tag", 1, 2, 3);
 
@@ -61,6 +65,74 @@ static char *test_Tag__create_from_CsvColumn() {
     return 0;
 }
 
+/**
+ * TagList
+ */
+static char *test_TagList__create() {
+    struct Tag *tag = Tag__create("test", 1, 2, 3);
+
+    struct TagList *tag_list = TagList__create(tag);
+    mu_assert("ERROR, tag_list == NULL",     tag_list != NULL);
+    mu_assert("ERROR, tag_list->tag != tag", tag_list->tag == tag);
+
+    mu_assert("ERROR, TagList_delete(tag_list) != 0", TagList_delete(tag_list) == 0);
+    mu_assert("ERROR, TagList_delete(NULL) != 0",     TagList_delete(NULL) == 0);
+
+    return 0;
+}
+
+static char *test_TagList_delete() {
+    struct Tag *tag_1 = Tag__create("test_1", 1, 1, 1);
+    struct Tag *tag_2 = Tag__create("test_2", 2, 2, 2);
+    struct Tag *tag_3 = Tag__create("test_3", 3, 3, 3);
+
+    struct TagList *tag_list_1 = TagList__create(tag_1);
+    struct TagList *tag_list_2 = TagList__create(tag_2);
+    struct TagList *tag_list_3 = TagList__create(tag_3);
+
+    tag_list_1->next = tag_list_2;
+    tag_list_2->next = tag_list_3;
+
+    // 本当に再帰的にfreeできてるか確認できていない
+    mu_assert("ERROR, TagList_delete(tag_list_1) != 0", TagList_delete(tag_list_1) == 0);
+
+    return 0;
+}
+
+static char *test_TagList_create_next() {
+    struct Tag *tag_1 = Tag__create("test_1", 1, 1, 1);
+    struct Tag *tag_2 = Tag__create("test_2", 2, 2, 2);
+    struct Tag *tag_3 = Tag__create("test_3", 3, 3, 3);
+
+    struct TagList *tag_list = TagList__create(tag_1);
+    struct TagList *tag_list_last = tag_list;
+    tag_list_last = TagList_create_next(tag_list_last, tag_2);
+    tag_list_last = TagList_create_next(tag_list_last, tag_3);
+
+    mu_assert("ERROR, tag_list->tag != tag_1",             tag_list->tag == tag_1);
+    mu_assert("ERROR, tag_list->next->tag != tag_2",       tag_list->next->tag == tag_2);
+    mu_assert("ERROR, tag_list->next->next->tag != tag_3", tag_list->next->next->tag == tag_3);
+    mu_assert("ERROR, tag_list->next->next->next != NULL", tag_list->next->next->next == NULL);
+
+    TagList_delete(tag_list);
+
+    return 0;
+}
+
+static char *test_TagList__create_from_csv() {
+    struct TagList *tag_list = TagList__create_from_csv(test_data_path);
+
+    mu_assert("ERROR, tag_list->tag->name == \"k-pop\"",         strcmp(tag_list->tag->name, "k-pop") == 0);
+    mu_assert("ERROR, tag_list->next->tag->name == \"→sm1014\"", strcmp(tag_list->next->tag->name, "→sm1014") == 0);
+
+    TagList_delete(tag_list);
+
+    return 0;
+}
+
+/**
+ * CsvReader
+ */
 static char *test_CsvReader__create_and_CsvReader_delete() {
     struct CsvReader *csv_reader = CsvReader__create();
     CsvReader_delete(csv_reader);
@@ -79,7 +151,6 @@ static char *test_CsvReader_open() {
 }
 
 static char *test_split_line_to_column_list() {
-
     char *line = "\"３部OVA_MAD\",\"19602\",\"357\",\"118\"";
 
     // TODO: なぜか printf("a\n"); が無いとsegmentation faultする、要デバッグ
@@ -113,8 +184,12 @@ static char *test_CsvReader_gets() {
         mu_assert("ERROR, CsvReader_open failed", NULL);
     }
 
-    struct CsvColumn *csv_column = CsvReader_gets(csv_reader);
-    mu_assert("ERROR, csv_column != \"k-pop\"", strcmp(csv_column->value, "k-pop") == 0);
+    struct CsvColumn *csv_column = NULL;
+
+    csv_column = CsvReader_gets(csv_reader);
+    mu_assert("ERROR, csv_column->value != \"k-pop\"",   strcmp(csv_column->value, "k-pop") == 0);
+    csv_column = CsvReader_gets(csv_reader);
+    mu_assert("ERROR, csv_column->value != \"→sm1014\"", strcmp(csv_column->value, "→sm1014") == 0);
 
     // csv_readerの開放によって、csv_columnが開放されている事も確認したい
     CsvReader_delete(csv_reader);
@@ -122,6 +197,9 @@ static char *test_CsvReader_gets() {
     return 0;
 }
 
+/**
+ * CsvColumn
+ */
 static char *test_CsvColumn__create() {
     struct CsvColumn *csv_column = CsvColumn__create("test_column");
     mu_assert("ERROR, csv_column->value != \"test_column\"", strcmp(csv_column->value, "test_column") == 0);
@@ -163,6 +241,9 @@ static char *test_CsvColumn_create_next() {
     return 0;
 }
 
+/**
+ * Files
+ */
 static char *test_Files__create_and_Files_delete() {
     struct Files *files = Files__create(dir_for_test_path);
     int i;
@@ -177,10 +258,20 @@ static char *test_Files__create_and_Files_delete() {
     return 0;
 }
 
+/**
+ * Others
+ */
 static char *all_tests() {
     // Tag
     mu_run_test(test_Tag__create_and_Tag_delete);
     mu_run_test(test_Tag__create_from_CsvColumn);
+
+    // TagList
+    mu_run_test(test_TagList__create);
+    mu_run_test(test_TagList_delete);
+    mu_run_test(test_TagList_create_next);
+
+    mu_run_test(test_TagList__create_from_csv);
 
     // CsvReader
     mu_run_test(test_CsvReader__create_and_CsvReader_delete);
