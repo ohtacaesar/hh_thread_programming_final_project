@@ -5,6 +5,7 @@
 
 #include "../src/tag.h"
 #include "../src/tag_list.h"
+#include "../src/tag_array.h"
 #include "../src/csv_reader.h"
 #include "../src/files.h"
 
@@ -126,6 +127,18 @@ static char *test_TagList__create_from_csv() {
 
     return 0;
 }
+
+/**
+ * TagArray
+ */
+static char *test_TagArray__create_and_TagArray_delete() {
+    struct TagArray *tag_array = TagArray__create();
+    mu_assert("ERROR, TagArray_delete(tag_array) != 0", 
+            TagArray_delete(tag_array) == 0);
+
+    return 0;
+}
+
 
 /**
  * CsvReader
@@ -272,6 +285,9 @@ static char *all_tests() {
     mu_run_test(test_TagList_create_next);
 
     mu_run_test(test_TagList__create_from_csv);
+
+    // TagArray
+    mu_run_test(test_TagArray__create_and_TagArray_delete);
 
     // CsvReader
     mu_run_test(test_CsvReader__create_and_CsvReader_delete);
