@@ -20,10 +20,11 @@ char *dir_for_test_path;
 static char *test_Tag__create_and_Tag_delete() {
     struct Tag *tag = Tag__create("test_tag", 1, 2, 3);
 
-    mu_assert("ERROR, tag->name != \"test_tag\"", strcmp(tag->name, "test_tag") == 0);
-    mu_assert("ERROR, tag->view_count != 1",      tag->view_count    == 1); 
-    mu_assert("ERROR, tag->comment_count != 2",   tag->comment_count == 2); 
-    mu_assert("ERROR, tag->mylist_count != 3",    tag->mylist_count  == 3); 
+    mu_assert("ERROR, tag->name != \"test_tag\"", 
+            strcmp(tag->name, "test_tag") == 0);
+    mu_assert("ERROR, tag->view_count != 1",    tag->view_count    == 1); 
+    mu_assert("ERROR, tag->comment_count != 2", tag->comment_count == 2); 
+    mu_assert("ERROR, tag->mylist_count != 3",  tag->mylist_count  == 3); 
 
     // char *tag_name = $tag->name;
     // char **tag_name_address = &tag->name;
@@ -43,13 +44,15 @@ static char *test_Tag__create_and_Tag_delete() {
 }
 
 static char *test_Tag__create_from_CsvColumn() {
-    struct CsvColumn *csv_column = split_line_to_column_list("\"３部OVA_MAD\",\"19602\",\"357\",\"118\"");
+    struct CsvColumn *csv_column = 
+        split_line_to_column_list("\"３部OVA_MAD\",\"19602\",\"357\",\"118\"");
     struct Tag *tag = Tag__create_from_CsvColumn(csv_column);
 
-    mu_assert("ERROR, tag->name != \"３部OVA_MAD\"", strcmp(tag->name, "３部OVA_MAD") == 0);
-    mu_assert("ERROR, tag->view_count != 19602",     tag->view_count    == 19602);
-    mu_assert("ERROR, tag->comment_count != 357",    tag->comment_count == 357);
-    mu_assert("ERROR, tag->mylist_count != 118",     tag->mylist_count  == 118);
+    mu_assert("ERROR, tag->name != \"３部OVA_MAD\"", 
+            strcmp(tag->name, "３部OVA_MAD") == 0);
+    mu_assert("ERROR, tag->view_count != 19602",  tag->view_count    == 19602);
+    mu_assert("ERROR, tag->comment_count != 357", tag->comment_count == 357);
+    mu_assert("ERROR, tag->mylist_count != 118",  tag->mylist_count  == 118);
 
     CsvColumn_delete(csv_column);
     Tag_delete(tag);
@@ -75,7 +78,8 @@ static char *test_TagList__create() {
     mu_assert("ERROR, tag_list == NULL",     tag_list != NULL);
     mu_assert("ERROR, tag_list->tag != tag", tag_list->tag == tag);
 
-    mu_assert("ERROR, TagList_delete(tag_list) != 0", TagList_delete(tag_list) == 0);
+    mu_assert("ERROR, TagList_delete(tag_list) != 0", 
+            TagList_delete(tag_list) == 0);
 
     return 0;
 }
@@ -93,8 +97,10 @@ static char *test_TagList_delete() {
     tag_list_2->next = tag_list_3;
 
     // 本当に再帰的にfreeできてるか確認できていない
-    mu_assert("ERROR, TagList_delete(tag_list_1) != 0", TagList_delete(tag_list_1) == 0);
-    mu_assert("ERROR, TagList_delete(NULL) != 0",       TagList_delete(NULL) == 0);
+    mu_assert("ERROR, TagList_delete(tag_list_1) != 0", 
+            TagList_delete(tag_list_1) == 0);
+    mu_assert("ERROR, TagList_delete(NULL) != 0",
+            TagList_delete(NULL) == 0);
 
     return 0;
 }
@@ -106,9 +112,12 @@ static char *test_TagList_create_next() {
     struct TagList *tag_list      = TagList__create(tag_1);
     struct TagList *next_tag_list = TagList_create_next(tag_list, tag_2);
 
-    mu_assert("ERROR, tag_list->next == next_tag_list", tag_list->next == next_tag_list);
-    mu_assert("ERROR, tag_list->next->tag != tag2",     next_tag_list->tag == tag_2);       
-    mu_assert("ERROR, tag_list->next->next != NULL",    tag_list->next->next == NULL);
+    mu_assert("ERROR, tag_list->next == next_tag_list", 
+            tag_list->next == next_tag_list);
+    mu_assert("ERROR, tag_list->next->tag != tag2",  
+            next_tag_list->tag == tag_2);       
+    mu_assert("ERROR, tag_list->next->next != NULL", 
+            tag_list->next->next == NULL);
 
     TagList_delete(tag_list);
 
@@ -139,13 +148,120 @@ static char *test_TagArray__create_and_TagArray_delete() {
     return 0;
 }
 
+static char *test_TagArray__create_with_capacity() {
+    struct TagArray *tag_array = TagArray__create_with_capacity(32);
+    mu_assert("ERROR, tag_array->capacity != 32", tag_array->capacity == 32);
+
+    return 0;
+}
+
+static char *test_TagArray_add() {
+    struct TagArray *tag_array = TagArray__create();
+
+    struct Tag *tag_1 = Tag__create("test_1", 1, 1, 1);
+    struct Tag *tag_2 = Tag__create("test_2", 2, 2, 2);
+
+    mu_assert("ERROR, TagArray_add(tag_array, tag_1) != 0",
+            TagArray_add(tag_array, tag_1) == 0);
+    mu_assert("ERROR, tag_array->size != 1", tag_array->size == 1);
+
+    mu_assert("ERROR, TagArray_add(tag_array, tag_2) != 0",
+            TagArray_add(tag_array, tag_2) == 0);
+    mu_assert("ERROR, tag_array->size != 2", tag_array->size == 2);
+
+    mu_assert("ERROR, tag_array->array[0] != tag_1",
+            tag_array->array[0] == tag_1);
+    mu_assert("ERROR, tag_array->array[1] != tag_2",
+            tag_array->array[1] == tag_2);
+
+    TagArray_delete(tag_array);
+
+    return  0;
+}
+
+static char *test_TagArray_add_when_size_over_capacity() {
+    struct TagArray *tag_array = TagArray__create_with_capacity(2);
+
+    struct Tag *tag_1 = Tag__create("test_1", 1, 1, 1);
+    struct Tag *tag_2 = Tag__create("test_2", 2, 2, 2);
+    struct Tag *tag_3 = Tag__create("test_3", 3, 3, 3);
+
+    mu_assert("ERROR, TagArray_add(tag_array, tag_1) != 0",
+            TagArray_add(tag_array, tag_1) == 0);
+    mu_assert("ERROR, tag_array->capacity != 2", tag_array->capacity == 2);
+
+    mu_assert("ERROR, TagArray_add(tag_array, tag_2) != 0",
+            TagArray_add(tag_array, tag_2) == 0);
+    mu_assert("ERROR, tag_array->capacity != 2", tag_array->capacity == 2);
+
+    mu_assert("ERROR, TagArray_add(tag_array, tag_3) != 0",
+            TagArray_add(tag_array, tag_3) == 0);
+    mu_assert("ERROR, tag_array->capacity != 4", tag_array->capacity == 4);
+
+    mu_assert("ERROR, tag_array->array[0] != tag_1",
+            tag_array->array[0] == tag_1);
+    mu_assert("ERROR, tag_array->array[1] != tag_2",
+            tag_array->array[1] == tag_2);
+    mu_assert("ERROR, tag_array->array[2] != tag_3",
+            tag_array->array[2] == tag_3);
+
+
+    TagArray_delete(tag_array);
+
+    return 0;
+}
+
+static char *test_TagArray_update_capacity() {
+    struct TagArray *tag_array = TagArray__create();
+    mu_assert("ERROR, TagArray_update_capacity(tag_array, 4) != 0", 
+            TagArray_update_capacity(tag_array, 4) == 0);
+    mu_assert("ERROR, tag_array->capacity != 4", tag_array->capacity = 4);
+
+    struct Tag *tag_1 = Tag__create("test_1", 1, 1, 1);
+    struct Tag *tag_2 = Tag__create("test_2", 2, 2, 2);
+    TagArray_add(tag_array, tag_1);
+    TagArray_add(tag_array, tag_2);
+
+    mu_assert("ERROR, TagArray_update_capacity(tag_array, 2) != 0", 
+            TagArray_update_capacity(tag_array, 2) == 0);
+    mu_assert("ERROR, tag_array->array[0] != tag_1",
+            tag_array->array[0] == tag_1);
+    mu_assert("ERROR, tag_array->array[1] != tag_2",
+            tag_array->array[1] == tag_2);
+    
+    mu_assert("ERROR, TagArray_update_capacity(tag_array, 1) != 1", 
+            TagArray_update_capacity(tag_array, 1) == 1);
+    // 失敗したら、中身は変わらない
+    mu_assert("ERROR, tag_array->array[0] != tag_1",
+            tag_array->array[0] == tag_1);
+    mu_assert("ERROR, tag_array->array[1] != tag_2",
+            tag_array->array[1] == tag_2);
+
+    return 0;
+}
+
+static char *test_TagArray__create_from_csv() {
+    struct TagArray *tag_array = TagArray__create_from_csv(test_data_path);
+
+    // 本当はNULLじゃないかからチェックした方がよさげ？
+    mu_assert("ERROR, tag_array->array[0]->name != \"k-pop\"",         
+            strcmp(tag_array->array[0]->name, "k-pop") == 0);
+    mu_assert("ERROR, tag_array->array[1]->name != \"→sm1014\"", 
+            strcmp(tag_array->array[1]->name, "→sm1014") == 0);
+
+    TagArray_delete(tag_array);
+
+    return 0;
+}
+
 
 /**
  * CsvReader
  */
 static char *test_CsvReader__create_and_CsvReader_delete() {
     struct CsvReader *csv_reader = CsvReader__create();
-    mu_assert("ERROR, CsvReader_delete(csv_reader) != 0", CsvReader_delete(csv_reader) == 0);
+    mu_assert("ERROR, CsvReader_delete(csv_reader) != 0", 
+            CsvReader_delete(csv_reader) == 0);
     
     return 0;
 }
@@ -232,12 +348,6 @@ static char *test_CsvColumn_delete() {
     csv_column_2->next = csv_column_3;
 
     CsvColumn_delete(csv_column_1);
-    // TODO: どうやってfreeが完了していることを確認するか
-    //
-    // printf("%p (%s)\n", csv_column_1_value_address, __FILE__);
-    // mu_assert("ERROR, csv_column_1->value != NULL", *csv_column_1_value_address == NULL);
-    // mu_assert("ERROR, csv_column_2->value != NULL", *csv_column_2_value_address == NULL);
-    // mu_assert("ERROR, csv_column_3->value != NULL", *csv_column_3_value_address == NULL);
 
     return 0;
 }
@@ -276,7 +386,7 @@ static char *test_Files__create_and_Files_delete() {
  */
 static char *all_tests() {
     // Tag
-    mu_run_test(test_Tag__create_and_Tag_delete);
+    mu_run_test(test_Tag__create_and_Tag_delete); 
     mu_run_test(test_Tag__create_from_CsvColumn);
 
     // TagList
@@ -288,6 +398,12 @@ static char *all_tests() {
 
     // TagArray
     mu_run_test(test_TagArray__create_and_TagArray_delete);
+    mu_run_test(test_TagArray__create_with_capacity);
+    mu_run_test(test_TagArray_add);
+    mu_run_test(test_TagArray_add_when_size_over_capacity);
+    mu_run_test(test_TagArray_update_capacity);
+
+    mu_run_test(test_TagArray__create_from_csv);
 
     // CsvReader
     mu_run_test(test_CsvReader__create_and_CsvReader_delete);
