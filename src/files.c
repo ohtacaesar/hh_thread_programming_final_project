@@ -10,6 +10,11 @@
 #define DEFAULT_FILES_SIZE 512
 
 struct Files* Files__create(char *dir_path) {
+    // remote tail / if exists
+    if(dir_path[strlen(dir_path) - 1] == '/') {
+        dir_path[strlen(dir_path) - 1] = '\0';
+    }
+
     struct Files *files = (struct Files *) malloc(sizeof(struct Files));
     DIR *dp;
 
@@ -25,6 +30,10 @@ struct Files* Files__create(char *dir_path) {
     struct dirent *entry;
     struct stat   statbuf;
     while((entry = readdir(dp)) != NULL) {
+        // ignore
+        if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
 
         int path_size = strlen(dir_path) * strlen(entry->d_name) + 2; // '/' と '\0' で + 2
         char *file_path = (char *) malloc(sizeof(char) * path_size);
@@ -35,7 +44,7 @@ struct Files* Files__create(char *dir_path) {
         strncat(file_path, entry->d_name, strlen(entry->d_name));
 
         if(stat(file_path, &statbuf) == -1) {
-            fprintf(stderr, "stat: %s(%s)\n", file_path, strerror(errno));
+            fprintf(stderr, "stat: (%s)\n", file_path, strerror(errno));
             Files_delete(files);
             free(file_path);
             free(file_paths_buf);
