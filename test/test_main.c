@@ -368,13 +368,19 @@ static char *test_CsvColumn_create_next() {
  * Files
  */
 static char *test_Files__create_and_Files_delete() {
+    // with dir
     struct Files *files = Files__create(dir_for_test_path);
     int i;
     for(i = 0; i < files->size; i++) {
         files->file_paths[i];
     }
-
     mu_assert("ERROR, files->size != 3", files->size == 3);
+
+    Files_delete(files);
+
+    // with file
+    files = Files__create(test_data_path);
+    mu_assert("ERROR, files->size != 3", files->size == 1);
 
     Files_delete(files);
 
