@@ -1,3 +1,4 @@
+#include "stdio.h"
 #include "stdlib.h"
 #include "tag_array.h"
 
@@ -11,6 +12,7 @@ struct TagArray* TagArray__create_with_capacity(int capacity) {
     struct TagArray *tag_array = 
         (struct TagArray*) malloc(sizeof(struct TagArray));
     if(tag_array == NULL) {
+        perror("malloc");
         return NULL;
     }
 
@@ -34,17 +36,20 @@ struct TagArray* TagArray__create_from_csv(char *file_path) {
     }
 
     struct TagArray *tag_array = TagArray__create();
-    struct CsvColumn *csv_column = NULL;
+    struct CsvColumn *csv_column;
     while((csv_column = CsvReader_gets(csv_reader)) != NULL) {
         struct Tag *tag = Tag__create_from_CsvColumn(csv_column);
         // 失敗を表す数値が1だったり-1だったりばらばら…
         if(TagArray_add(tag_array, tag) == 1) {
+            fprintf(stderr, "Failed to add tag %s\n", tag->name);
             CsvReader_delete(csv_reader);
             TagArray_delete(tag_array);
 
             return NULL;
         }
     }
+
+    CsvReader_delete(csv_reader);
 
     return tag_array;
 }
@@ -56,6 +61,8 @@ int TagArray_delete(struct TagArray *tag_array) {
     }
 
     free(tag_array->array);
+    tag_array->array = NULL;
+
     free(tag_array);
 
     return 0;

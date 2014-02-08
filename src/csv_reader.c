@@ -3,8 +3,8 @@
 #include <string.h>
 #include "csv_reader.h"
 
-#define FGETS_BUF_SIZE  256
-#define COLUMN_BUF_SIZE 64
+#define FGETS_BUF_SIZE  512
+#define COLUMN_BUF_SIZE 128
 
 struct CsvReader {
     FILE *file_pointer;
