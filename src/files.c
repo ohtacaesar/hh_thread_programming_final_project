@@ -73,7 +73,7 @@ struct Files* Files__create_with_dir_path(char *dir_path) {
             continue;
         }
 
-        if(file_paths_size > file_paths_buf_size) {
+        if(file_paths_size >= file_paths_buf_size) {
             file_paths_buf_size *= 2;
 
             char **temp;

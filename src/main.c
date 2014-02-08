@@ -23,9 +23,14 @@ int main(int argc, char** argv) {
         printf("%s\n", files->file_paths[i]);
 
         struct TagArray *tag_array = TagArray__create_from_csv(files->file_paths[i]);
+        if(tag_array == NULL) {
+            fprintf(stderr, "failed to create tag_array\n");
+            break;
+        }
+
         int j;
         for(j = 0; j < tag_array->size; j++) {
-            printf("%s\n", tag_array->array[j]->name);
+            // printf("%s\n", tag_->array[j]->name);
         }
         TagArray_delete(tag_array);
     }
