@@ -22,4 +22,6 @@ int TagArray_delete(struct TagArray *tag_array);
 
 int TagArray_add(struct TagArray *tag_array, struct Tag *tag);
 
+int TagArray_sort(struct TagArray *tag_array);
+
 #endif

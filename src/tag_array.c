@@ -106,3 +106,17 @@ int TagArray_update_capacity(struct TagArray *tag_array, int new_capacity) {
     return 0;
 }
 
+int compare_tag(const void *a, const void *b) {
+    return strcmp((*(struct Tag **) a)->name, (*(struct Tag **) b)->name);
+}
+
+int TagArray_sort(struct TagArray *tag_array) {
+    if(tag_array == NULL) {
+        return 1;
+    }
+
+    // qsort
+    qsort(tag_array->array, tag_array->size, sizeof(struct Tag *), compare_tag);
+
+    return 0;
+}
