@@ -240,6 +240,25 @@ static char *test_TagArray_update_capacity() {
     return 0;
 }
 
+static char *test_TagArray_sort() {
+    struct TagArray *tag_array = TagArray__create();
+    TagArray_add(tag_array, Tag__create("c", 4, 4, 4));
+    TagArray_add(tag_array, Tag__create("b", 4, 4, 4));
+    TagArray_add(tag_array, Tag__create("a", 4, 4, 4));
+
+    mu_assert("ERROR, TagArray_sort(tag_array) != 0", 
+            TagArray_sort(tag_array) == 0);
+
+    mu_assert("tag_array->array[0]->name != \"a\"",
+            strcmp(tag_array->array[0]->name, "a") == 0);
+    mu_assert("tag_array->array[1]->name != names[i]",
+            strcmp(tag_array->array[1]->name, "b") == 0);
+    mu_assert("tag_array->array[2]->name != names[i]",
+            strcmp(tag_array->array[2]->name, "c") == 0);
+
+    return 0;
+}
+
 static char *test_TagArray__create_from_csv() {
     struct TagArray *tag_array = TagArray__create_from_csv(test_data_path);
 
@@ -408,6 +427,7 @@ static char *all_tests() {
     mu_run_test(test_TagArray_add);
     mu_run_test(test_TagArray_add_when_size_over_capacity);
     mu_run_test(test_TagArray_update_capacity);
+    mu_run_test(test_TagArray_sort);
 
     mu_run_test(test_TagArray__create_from_csv);
 
